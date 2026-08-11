@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yacht_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8000:8000"
+    networks:
+      - yacht-network
+
+  db:
+    image: mysql:8.0
+    container_name: yacht_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: yacht_db
+      MYSQL_ROOT_PASSWORD: yacht_password
+      MYSQL_USER: yacht_user
+      MYSQL_PASSWORD: yacht_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - yacht-network
+
+volumes:
+  dbdata:
+
+networks:
+  yacht-network:
+    driver: bridge
