@@ -13,7 +13,7 @@ class ProdazhaYacht extends Model
     protected $fillable = [
         'yacht_id', 
         'client_id', 
-        'sale_date', 
+        'sale_date', // <--- Згідно зі структурою таблиці prodazha_yachts
         'amount', 
         'status'
     ];

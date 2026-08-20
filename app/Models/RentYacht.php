@@ -12,6 +12,7 @@ class RentYacht extends Model
         'client_id', 
         'start_date', 
         'end_date', 
+        'operation_date', // <--- Додано сюди
         'amount', 
         'status'
     ];

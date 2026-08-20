@@ -8,10 +8,23 @@ class Yacht extends Model
 {
     protected $table = 'yachts';
     
-    // Поля, які можна масово заповнювати (додали 'quantity')
-    protected $fillable = ['name', 'type_id', 'price_rent', 'price_buy', 'short_description', 'image_path', 'description', 'quantity'];
+    // Додано 'type_oper' та інші необхідні поля до fillable
+    protected $fillable = [
+        'name', 
+        'year', 
+        'status', 
+        'price_rent', 
+        'price_buy', 
+        'last_maintenance', 
+        'type_oper', 
+        'type_id', 
+        'registration_date', 
+        'is_active', 
+        'comment', 
+        'quantity'
+    ];
 
-    // Зв'язок з типом яхти
+    // Зв'язок з типом яхти (враховує первинний ключ id_type у таблиці type_yachts)
     public function type()
     {
         return $this->belongsTo(TypeYacht::class, 'type_id', 'id_type');

@@ -30,19 +30,59 @@
 </head>
 <body class="flex min-h-screen">
 
-    <!-- Ліве меню -->
-    <nav class="w-64 bg-[#105657] text-white p-8 rounded-r-[3rem] sticky top-0 h-screen">
-        <div class="flex items-center mb-10">
-            <img src="{{ asset('images/main-logo.png') }}" alt="Logo" class="h-20 w-20 object-contain">
-            <h2 class="text-2xl font-bold tracking-widest ml-4">Yacht Club</h2>
-        </div>
+   <!-- Ліве меню -->
+    <nav class="w-64 bg-[#105657] text-white p-8 rounded-r-[3rem] sticky top-0 h-screen flex flex-col justify-between">
         
-        <!-- Кнопки: темніший фон, центрований текст, збільшений шрифт -->
-        <ul class="space-y-4">
-            <li><a href="{{ url('/') }}" class="block px-6 py-4 rounded-full text-xl text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">Головна</a></li>
-            <li><a href="{{ url('/yachts/rent') }}" class="block px-6 py-4 rounded-full text-xl text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">Оренда</a></li>
-            <li><a href="{{ url('/yachts/buy') }}" class="block px-6 py-4 rounded-full text-xl text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">Купити</a></li>
-        </ul>
+        <!-- 1. ВЕРХНЯ ЧАСТИНА: Основні посилання / меню сайту -->
+        <div class="space-y-4">
+            <!-- Логотип / Назва сайту -->
+            <a href="{{ url('/') }}" class="block text-2xl font-bold mb-6 text-center">Yacht Club</a>
+            
+            <!-- Кнопка Головна -->
+            <a href="{{ url('/') }}" class="block px-4 py-3 rounded-full text-lg text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">
+                Головна
+            </a>
+
+            <!-- Кнопки Оренда та Купівля -->
+            <a href="{{ url('/yachts/rent') }}" class="block px-4 py-3 rounded-full text-lg text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">
+                Оренда яхт
+            </a>
+            <a href="{{ url('/yachts/buy') }}" class="block px-4 py-3 rounded-full text-lg text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">
+                Купівля яхт
+            </a>
+        </div>
+
+        <!-- 2. НИЖНЯ ЧАСТИНА: Блок авторизації / особистого кабінету -->
+        <div class="space-y-3 pt-6 border-t border-[#2b8a8c]">
+            @auth('client')
+                {{-- Прямокутник з ім'ям користувача --}}
+                <div class="px-4 py-3 bg-[#0a3536] text-white font-bold rounded-2xl text-center border border-[#2b8a8c] truncate">
+                    {{ explode(' ', Auth::guard('client')->user()->full_name)[0] ?? 'Користувач' }}
+                </div>
+                
+                {{-- Посилання на Мої дані --}}
+                <a href="{{ route('client.data') }}" class="block px-4 py-2.5 rounded-full text-base text-center bg-[#0a3536] hover:bg-[#0f3d3e] text-cyan-100 btn-border transition">
+                    Мої дані
+                </a>
+                
+                {{-- Посилання на Мої дії --}}
+                <a href="{{ route('client.actions') }}" class="block px-4 py-2.5 rounded-full text-base text-center bg-[#0a3536] hover:bg-[#0f3d3e] text-cyan-100 btn-border transition">
+                    Мої дії
+                </a>
+
+                {{-- Кнопка Вийти --}}
+                <form action="{{ route('client.logout') }}" method="POST" class="mt-2">
+                    @csrf
+                    <button type="submit" class="w-full px-4 py-2 rounded-full text-sm text-center bg-red-600/30 hover:bg-red-600/50 text-red-200 border border-red-500/50 transition">
+                        Вийти
+                    </button>
+                </form>
+            @else
+                {{-- Кнопки для незалогінених користувачів --}}
+                <a href="{{ url('/login') }}" class="block px-4 py-3 rounded-full text-lg text-center bg-[#0a3536] hover:bg-[#0f3d3e] btn-border transition">Увійти</a>
+                <a href="{{ url('/register') }}" class="block px-4 py-3 rounded-full text-lg text-center bg-white text-[#1a6668] font-bold hover:bg-cyan-100 btn-border transition">Реєстрація</a>
+            @endauth
+        </div>
     </nav>
 
     <!-- Основний контент -->
@@ -80,7 +120,7 @@
                 @forelse ($yachts as $yacht)
                     <div class="bg-[#1a6668] p-6 rounded-3xl shadow-xl flex items-center gap-8 mb-6 border border-[#2b8a8c]">
                         <div class="w-1/3 h-40 bg-gray-300 rounded-2xl overflow-hidden">
-                            <img src="{{ asset('images/' . ($yacht->type ? $yacht->type->image_path : 'default.jpg')) }}" 
+                            <img src="{{ asset('images/' . ($yacht->type && $yacht->type->image_path ? $yacht->type->image_path : 'default.jpg')) }}" 
                                  class="w-full h-full object-cover" 
                                  alt="{{ $yacht->name }}">
                         </div>
@@ -95,9 +135,9 @@
                                 <!-- Ліва частина: Ціна, Місця та Комплектація чітко в один рядок -->
                                 <div class="flex items-center gap-3">
                                     
-                                    <!-- Блок ціни -->
+                                    <!-- Блок ціни (визначаємо по type_oper або поточниму шляху) -->
                                     <div class="px-4 py-2 bg-[#0f3d3e] rounded-2xl border border-[#2b8a8c] flex flex-col items-center justify-center whitespace-nowrap">
-                                        @if(request()->is('*/rent'))
+                                        @if(($typeName ?? '') === 'rent' || $yacht->type_oper === 'rent')
                                             <span class="text-xs text-cyan-200">Ціна за 1 день:</span>
                                             <span class="text-lg font-bold text-white">{{ number_format($yacht->price_rent, 0, '.', ' ') }} $</span>
                                         @else
@@ -114,7 +154,7 @@
                                         </span>
                                     </div>
 
-                                    <!-- Примітка / Комплектація тепер тут у рядку -->
+                                    <!-- Примітка / Комплектація -->
                                     @if(!empty($yacht->comment))
                                         <div class="px-4 py-2 bg-[#0f3d3e] rounded-2xl border border-[#2b8a8c] flex flex-col items-center justify-center">
                                             @foreach(explode(',', $yacht->comment) as $line)
@@ -125,7 +165,7 @@
                                 </div>
                                 
                                 <!-- Кнопка Детальніше праворуч -->
-                                <a href="{{ url('/yacht/' . $yacht->id . '/' . (request()->is('*/rent') ? 'rent' : 'buy')) }}" class="px-6 py-2.5 bg-white text-[#1a6668] font-bold rounded-full hover:bg-cyan-100 transition btn-border shrink-0">
+                                <a href="{{ url('/yacht/' . $yacht->id . '/' . (($typeName ?? '') === 'rent' || $yacht->type_oper === 'rent' ? 'rent' : 'buy')) }}" class="px-6 py-2.5 bg-white text-[#1a6668] font-bold rounded-full hover:bg-cyan-100 transition btn-border shrink-0">
                                     Детальніше
                                 </a>
                             </div>

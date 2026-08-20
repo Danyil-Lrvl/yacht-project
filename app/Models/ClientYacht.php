@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class ClientYacht extends Model
+class ClientYacht extends Authenticatable
 {
+    use Notifiable;
+
     // Вказуємо таблицю, бо вона має специфічну назву
     protected $table = 'clients_yachts';
 
-    // Вказуємо, що Eloquent не повинен шукати поля created_at/updated_at
-    public $timestamps = false;
+    // У нашій таблиці є created_at та updated_at, тому залишаємо timestamps увімкненими
+    public $timestamps = true;
 
     // Поля, які можна заповнювати
     protected $fillable = [
@@ -20,8 +23,14 @@ class ClientYacht extends Model
         'document_date', 
         'phone', 
         'email', 
+        'password', // Додано поле пароля
         'address', 
         'tax_id'
+    ];
+
+    // Приховуємо пароль при виведенні моделі
+    protected $hidden = [
+        'password',
     ];
 
     // Зв'язок: Клієнт має багато оренд

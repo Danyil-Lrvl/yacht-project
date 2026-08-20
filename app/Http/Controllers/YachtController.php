@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Yacht;
 use App\Models\TypeYacht;
 use App\Models\RentYacht;
@@ -20,38 +22,22 @@ class YachtController extends Controller
 
     public function index($typeName)
     {
-        // Отримуємо всі типи яхт для випадаючого списку фільтрації
         $types = TypeYacht::all();
         $selectedType = request('type_id');
+        $typeName = strtolower(trim($typeName));
 
         if (in_array($typeName, ['rent', 'buy'])) {
             $query = Yacht::where('type_oper', $typeName);
-
-            // Фільтрація за конкретним типом яхти, якщо він обраний у випадаючому списку
             if (!empty($selectedType)) {
                 $query->where('type_id', $selectedType);
             }
-
-            // Якщо це розділ купівлі, ховаємо яхти, на які є активна заявка молодша за 3 дні
-            if ($typeName === 'buy') {
-                $threeDaysAgo = Carbon::now()->subDays(3);
-                
-                $activeYachtIds = ProdazhaYacht::where('status', 'заявка')
-                    ->where('created_at', '>=', $threeDaysAgo)
-                    ->pluck('yacht_id');
-
-                $query->whereNotIn('id', $activeYachtIds);
-            }
-
             $yachts = $query->get();
             
             return view('welcome', compact('yachts', 'typeName', 'types', 'selectedType'))
                 ->with('type', (object)['name_type' => $typeName]);
         }
 
-        // Якщо перегляд за конкретним типом з меню
         $type = TypeYacht::where('name_type', $typeName)->firstOrFail();
-        
         $query = Yacht::where('type_id', $type->id_type);
         if (!empty($selectedType)) {
             $query->where('type_id', $selectedType);
@@ -70,11 +56,10 @@ class YachtController extends Controller
     public function getBookedDates($yacht_id) 
     {
         $bookings = RentYacht::where('yacht_id', $yacht_id)
-            ->where('status', '!=', 'анульовано')
+            ->whereNotIn('status', ['cancelled', 'анульовано'])
             ->get();
             
         $disabledDates = [];
-
         foreach ($bookings as $booking) {
             if (!empty($booking->start_date) && !empty($booking->end_date)) {
                 try {
@@ -87,7 +72,6 @@ class YachtController extends Controller
                 }
             }
         }
-
         return response()->json(array_values(array_unique($disabledDates)));
     }
 
@@ -102,32 +86,37 @@ class YachtController extends Controller
 
     public function storeRent(Request $request)
     {
-        // 1. Валідуємо дані клієнта та дати (без ціни!)
         $request->validate([
             'yacht_id'   => 'required|exists:yachts,id',
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date',
             'full_name'  => 'required|string|max:255',
             'phone'      => 'required|string|max:255',
+            'amount'     => 'required|numeric|min:0',
         ]);
 
-        // 2. Знаходимо яхту на сервері
         $yacht = Yacht::findOrFail($request->yacht_id);
+        
+        $clientId = Auth::guard('client')->check() ? Auth::guard('client')->id() : null;
 
-        // 3. Безпечно беремо ціну оренди з бази даних
-        $amount = $yacht->price_rent; 
+        if (!$clientId) {
+            $client = ClientYacht::create([
+                'full_name' => $request->full_name,
+                'phone'     => $request->phone,
+                'email'     => $request->email ?? 'no-email@client.com',
+                'password'  => Hash::make('default_password')
+            ]);
+            $clientId = $client->id;
+        }
 
-        // 4. Створюємо клієнта
-        $client = ClientYacht::create($request->all());
-
-        // 5. Зберігаємо оренду із захищеною ціною з бази
         RentYacht::create([
-            'yacht_id'   => $yacht->id,
-            'client_id'  => $client->id,
-            'start_date' => $request->start_date,
-            'end_date'   => $request->end_date,
-            'amount'     => $amount, 
-            'status'     => 'заявка',
+            'yacht_id'       => $yacht->id,
+            'client_id'      => $clientId,
+            'start_date'     => $request->start_date,
+            'end_date'       => $request->end_date,
+            'operation_date' => now(),
+            'amount'         => $request->amount,
+            'status'         => 'заявка',
         ]);
 
         return redirect('/')->with('success', 'Заявку на оренду успішно подано!');
@@ -144,30 +133,111 @@ class YachtController extends Controller
 
     public function storeBuy(Request $request)
     {
-        // 1. Валідуємо тільки дані клієнта та yacht_id (ціну з форми повністю ігноруємо)
         $request->validate([
             'yacht_id'  => 'required|exists:yachts,id',
             'full_name' => 'required|string|max:255',
             'phone'     => 'required|string|max:255',
         ]);
 
-        // 2. Знаходимо яхту на сервері
         $yacht = Yacht::findOrFail($request->yacht_id);
-
-        // 3. Беремо реальну ціну покупки виключно з бази даних! Тепер через DevTools неможливо купити за долар.
         $amount = $yacht->price_buy;
 
-        // 4. Створюємо клієнта
-        $client = ClientYacht::create($request->all());
+        $clientId = Auth::guard('client')->check() ? Auth::guard('client')->id() : null;
 
-        // 5. Записуємо продаж із захищеною ціною
+        if (!$clientId) {
+            $client = ClientYacht::create([
+                'full_name' => $request->full_name,
+                'phone'     => $request->phone,
+                'email'     => $request->email ?? 'no-email@client.com',
+                'password'  => Hash::make('default_password')
+            ]);
+            $clientId = $client->id;
+        }
+
         ProdazhaYacht::create([
             'yacht_id'  => $yacht->id,
-            'client_id' => $client->id,
+            'client_id' => $clientId,
+            'sale_date' => now(),
             'amount'    => $amount,
             'status'    => 'заявка',
         ]);
 
-        return redirect('/')->with('success', 'Заявку на покупку успішно подано! Яхта тимчасово знята з продажу на 3 дні.');
+        return redirect('/')->with('success', 'Заявку на покупку успішно подано!');
+    }
+
+    // --- АВТОРИЗАЦІЯ ТА ПРОФІЛЬ ---
+    public function showLoginForm() { return view('account.login'); }
+    public function showRegisterForm() { return view('account.register'); }
+
+    public function registerClient(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:clients_yachts,email',
+            'password' => 'required|min:6',
+        ]);
+
+        $client = ClientYacht::create([
+            'full_name' => $request->name,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
+        ]);
+
+        Auth::guard('client')->login($client);
+        return redirect('/')->with('success', 'Акаунт успішно створено!');
+    }
+
+    public function loginClient(Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::guard('client')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/')->with('success', 'Успішний вхід!');
+        }
+
+        return back()->withErrors(['email' => 'Невірні дані для входу.']);
+    }
+
+    public function logoutClient(Request $request)
+    {
+        Auth::guard('client')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
+    }
+
+    public function showClientData()
+    {
+        $client = Auth::guard('client')->user();
+        return view('account.my-data', compact('client'));
+    }
+
+    public function updateClientData(Request $request)
+    {
+        $client = Auth::guard('client')->user();
+        $request->validate([
+            'full_name'          => 'required|string|max:255',
+            'document_number'    => 'nullable|string|max:50',
+            'document_issued_by' => 'nullable|string|max:255',
+            'document_date'      => 'nullable|date',
+            'phone'              => 'nullable|string|max:20',
+            'address'            => 'nullable|string',
+            'tax_id'             => 'nullable|string|max:50',
+        ]);
+
+        $client->update($request->all());
+        return redirect()->route('client.data')->with('success', 'Дані успішно оновлено!');
+    }
+
+    public function showClientActions()
+    {
+        $client = Auth::guard('client')->user();
+        $rents = RentYacht::where('client_id', $client->id)->with('yacht')->get();
+        $sales = ProdazhaYacht::where('client_id', $client->id)->with('yacht')->get();
+        return view('account.my-actions', compact('client', 'rents', 'sales'));
     }
 }

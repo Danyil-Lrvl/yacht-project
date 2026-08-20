@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
--- Хост:                          127.0.0.1
--- Версия сервера:                8.4.3 - MySQL Community Server - GPL
+-- Хост:                     127.0.0.1
+-- Версия сервера:              8.4.3 - MySQL Community Server - GPL
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -17,23 +17,24 @@
 DROP TABLE IF EXISTS `clients_yachts`;
 CREATE TABLE `clients_yachts` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `document_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `document_issued_by` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `document_date` date NOT NULL,
-  `phone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document_issued_by` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document_date` date DEFAULT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tax_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-REPLACE INTO `clients_yachts` (`id`, `full_name`, `document_number`, `document_issued_by`, `document_date`, `phone`, `email`, `address`, `tax_id`, `created_at`) VALUES
-    (1, 'Іван Іваненко', 'АА 123456', 'Шевченківським РВ УМВС', '2022-11-24', '+380 99 123 4567', 'ivan.ivanenko@example.com', 'м. Київ, вул. Хрещатик, 1', '1234567890', '2026-07-20 11:42:29'),
-    (2, 'Шевченко Тарас Григорович', 'АА123456', 'Шевченківським РВ УМВС', '2021-07-22', '+380951234567', 'test@gmail.com', 'м. Київ, вул. Хрещатик, 1', '1234567890', '2026-07-22 16:56:26'),
-    (3, 'Шевченко Тарас Григорович', 'АА123456', 'Шевченківським РВ УМВС', '2021-07-22', '+380951234567', 'test@gmail.com', 'м. Київ, вул. Хрещатик, 1', '1234567890', '2026-07-22 17:00:07');
+REPLACE INTO `clients_yachts` (`id`, `full_name`, `document_number`, `document_issued_by`, `document_date`, `phone`, `email`, `password`, `address`, `tax_id`, `created_at`) VALUES
+    (1, 'Іван Іваненко', 'АА 123456', 'Шевченківським РВ УМВС', '2022-11-24', '+380 99 123 4567', 'ivan.ivanenko@example.com', '$2y$12$N12345PlaceholderHashForTestingPurposesOnly00000000000000001', 'м. Київ, вул. Хрещатик, 1', '1234567890', '2026-07-20 11:42:29'),
+    (2, 'Шевченко Тарас Григорович', 'АА123456', 'Шевченківським РВ УМВС', '2021-07-22', '+380951234567', 'test@gmail.com', '$2y$12$M12345PlaceholderHashForTestingPurposesOnly00000000000000002', 'м. Київ, вул. Хрещатик, 1', '1234567890', '2026-07-22 16:56:26'),
+    (3, 'Шевченко Тарас Григорович', 'АА123456', 'Шевченківським РВ УМВС', '2021-07-22', '+380951234567', 'test2@gmail.com', '$2y$12$M12345PlaceholderHashForTestingPurposesOnly00000000000000002', 'м. Київ, вул. Хрещатик, 1', '1234567890', '2026-07-22 17:00:07');
 
 
 DROP TABLE IF EXISTS `type_yachts`;

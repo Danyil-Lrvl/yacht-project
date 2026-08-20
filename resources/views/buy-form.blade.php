@@ -49,65 +49,79 @@
     </style>
 </head>
 <body class="p-10 text-white">
-    <div class="max-w-3xl mx-auto bg-[#1a6668] p-8 rounded-3xl border border-[#2b8a8c]">
-        
-        <a href="{{ url('/yacht/' . $yacht->id . '/buy') }}" class="inline-block mb-4 text-cyan-300 hover:text-white transition font-semibold">
-            &larr; Повернутися
-        </a>
+    <div class="max-w-3xl mx-auto">
+        <!-- Блок авторизації / Шторка користувача у верхньому кутку -->
+        <div class="flex justify-end mb-4">
+            @if(Auth::guard('client')->check())
+                @include('account.dropdown-menu')
+            @else
+                <a href="{{ route('client.auth') }}" class="px-4 py-2 bg-[#2b8a8c] hover:bg-cyan-600 text-white rounded-xl transition font-semibold">Вхід / Реєстрація</a>
+            @endif
+        </div>
 
-        <h1 class="text-3xl font-bold mb-6 text-cyan-300">Заявка на купівлю: {{ $yacht->name }}</h1>
-        
-        <form action="{{ route('yacht.buy.submit') }}" method="POST">
-            @csrf
-            <input type="hidden" name="yacht_id" value="{{ $yacht->id }}">
+        <div class="bg-[#1a6668] p-8 rounded-3xl border border-[#2b8a8c]">
+            <a href="{{ url('/yacht/' . $yacht->id . '/buy') }}" class="inline-block mb-4 text-cyan-300 hover:text-white transition font-semibold">
+                &larr; Повернутися
+            </a>
 
-            <!-- Блок даних клієнта (структура як на оренді) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block mb-2">Повне ім'я:</label>
-                    <input type="text" name="full_name" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                <div>
-                    <label class="block mb-2">Телефон:</label>
-                    <input type="text" name="phone" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                <div>
-                    <label class="block mb-2">Номер документа:</label>
-                    <input type="text" name="document_number" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                <div>
-                    <label class="block mb-2">Дата видачі:</label>
-                    <input type="text" name="document_date" id="document_date" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                
-                <div class="md:col-span-2">
-                    <label class="block mb-2">Ким виданий:</label>
-                    <input type="text" name="document_issued_by" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block mb-2">Адреса:</label>
-                    <input type="text" name="address" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                
-                <div>
-                    <label class="block mb-2">Email:</label>
-                    <input type="email" name="email" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-                <div>
-                    <label class="block mb-2">ІПН (Tax ID):</label>
-                    <input type="text" name="tax_id" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
-                </div>
-            </div>
+            <h1 class="text-3xl font-bold mb-6 text-cyan-300">Заявка на купівлю: {{ $yacht->name }}</h1>
+            
+            <form action="{{ route('yacht.buy.submit') }}" method="POST">
+                @csrf
+                <input type="hidden" name="yacht_id" value="{{ $yacht->id }}">
 
-            <div class="mb-6">
-                <label class="block mb-2 text-cyan-300 font-bold">Ціна яхти ($):</label>
-                <input type="number" name="amount" value="{{ $yacht->price_buy }}" readonly class="w-full p-3 rounded-xl bg-[#0f3d3e] border-2 border-cyan-400 text-white font-bold text-xl">
-            </div>
+                @php
+                    $client = Auth::guard('client')->user();
+                @endphp
 
-            <button type="submit" class="w-full py-4 bg-cyan-400 text-[#0f3d3e] font-bold rounded-full hover:bg-cyan-300 transition">
-                Відправити заявку на купівлю
-            </button>
-        </form>
+                <!-- Блок даних клієнта (структура як на оренді) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block mb-2">Повне ім'я:</label>
+                        <input type="text" name="full_name" value="{{ $client->full_name ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2">Телефон:</label>
+                        <input type="text" name="phone" value="{{ $client->phone ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2">Номер документа:</label>
+                        <input type="text" name="document_number" value="{{ $client->document_number ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2">Дата видачі:</label>
+                        <input type="text" name="document_date" id="document_date" value="{{ $client->document_date ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block mb-2">Ким виданий:</label>
+                        <input type="text" name="document_issued_by" value="{{ $client->document_issued_by ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block mb-2">Адреса:</label>
+                        <input type="text" name="address" value="{{ $client->address ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-2">Email:</label>
+                        <input type="email" name="email" value="{{ $client->email ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2">ІПН (Tax ID):</label>
+                        <input type="text" name="tax_id" value="{{ $client->tax_id ?? '' }}" required class="w-full p-3 rounded-xl bg-[#0f3d3e] border border-[#2b8a8c] text-white">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block mb-2 text-cyan-300 font-bold">Ціна яхти ($):</label>
+                    <input type="number" name="amount" value="{{ $yacht->price_buy }}" readonly class="w-full p-3 rounded-xl bg-[#0f3d3e] border-2 border-cyan-400 text-white font-bold text-xl">
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-cyan-400 text-[#0f3d3e] font-bold rounded-full hover:bg-cyan-300 transition">
+                    Відправити заявку на купівлю
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\ClientYacht; // Додаємо імпорт нашої моделі клієнта
 
 return [
 
@@ -42,6 +43,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Додаємоガード для клієнтів яхт
+        'client' => [
+            'driver' => 'session',
+            'provider' => 'clients',
+        ],
     ],
 
     /*
@@ -67,10 +74,11 @@ return [
             'model' => env('AUTH_MODEL', User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        // Додаємо провайдер для клієнтів
+        'clients' => [
+            'driver' => 'eloquent',
+            'model' => ClientYacht::class,
+        ],
     ],
 
     /*
