@@ -20,6 +20,35 @@ class YachtController extends Controller
         return view('welcome');
     }
 
+    // Метод для адмін-панелі керування екземплярами яхт
+    public function adminIndex(Request $request)
+    {
+        $query = Yacht::with('type');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('serial_number', 'like', "%{$search}%")
+                  ->orWhere('comment', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('type_oper')) {
+            $query->where('type_oper', $request->input('type_oper'));
+        }
+
+        if ($request->filled('type_id')) {
+            $query->where('type_yacht_id', $request->input('type_id'));
+        }
+
+        if ($request->filled('last_7_days')) {
+            $query->where('created_at', '>=', now()->subDays(7));
+        }
+
+        $yachts = $query->get();
+        $types = TypeYacht::all();
+
+        return view('admin.yachts', compact('yachts', 'types'));
+    }
+
     public function index($typeName)
     {
         $types = TypeYacht::all();

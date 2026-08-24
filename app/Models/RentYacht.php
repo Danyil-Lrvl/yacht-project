@@ -12,7 +12,7 @@ class RentYacht extends Model
         'client_id', 
         'start_date', 
         'end_date', 
-        'operation_date', // <--- Додано сюди
+        'operation_date', 
         'amount', 
         'status'
     ];
@@ -26,6 +26,6 @@ class RentYacht extends Model
     // 3. Зв'язок: Оренда належить конкретному клієнту
     public function client()
     {
-        return $this->belongsTo(ClientYacht::class);
+        return $this->belongsTo(ClientYacht::class, 'client_id');
     }
 }

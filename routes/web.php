@@ -11,16 +11,39 @@ Route::get('/', [YachtController::class, 'home']);
 // 2. API-маршрут
 Route::get('/yacht/booked-dates/{yacht_id}', [YachtController::class, 'getBookedDates']);
 
-// 3. Адмін-панель та перевірка пароля
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-Route::post('/admin/check-password', function (Request $request) {
-    if ($request->password === env('ADMIN_PASSWORD')) {
-        return response()->json(['success' => true]);
-    }
-    return response()->json(['success' => false], 401);
+// 3. Адмін-панель (Логін, Вихід)
+Route::get('/admin/login', function () {
+    return redirect()->route('admin.rent');
+})->name('admin.login.form');
+
+Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+
+Route::get('/admin', function () {
+    return redirect()->route('admin.rent');
 });
-Route::post('/admin/yacht/store', [AdminController::class, 'storeYacht'])->name('admin.yacht.store');
-Route::post('/admin/order/status', [AdminController::class, 'updateOrderStatus'])->name('admin.order.status');
+
+// Адмін-панель (захист через модальне вікно layout.blade.php)
+Route::middleware(['web'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/rent', [AdminController::class, 'rent'])->name('rent');
+    Route::get('/buy', [AdminController::class, 'buy'])->name('buy');
+    Route::get('/types', [AdminController::class, 'types'])->name('types');
+    Route::get('/yachts', [AdminController::class, 'yachts'])->name('yachts');
+    Route::get('/photos', [AdminController::class, 'photos'])->name('photos');
+
+    // Дії в адмін-панелі (збереження, оновлення, видалення)
+    Route::post('/type/store', [AdminController::class, 'storeType'])->name('type.store');
+    Route::put('/type/update/{id}', [AdminController::class, 'updateType'])->name('type.update');
+
+    Route::post('/yacht/store', [AdminController::class, 'storeYacht'])->name('yacht.store');
+    Route::put('/yacht/update/{id}', [AdminController::class, 'updateYacht'])->name('yacht.update');
+
+    Route::post('/photos/store', [AdminController::class, 'storePhotos'])->name('photos.store');
+    Route::put('/photos/update/{id}', [AdminController::class, 'updatePhoto'])->name('photos.update');
+    Route::delete('/photos/destroy/{id}', [AdminController::class, 'destroyPhoto'])->name('photos.destroy');
+
+    Route::post('/order/status', [AdminController::class, 'updateOrderStatus'])->name('order.status');
+});
 
 // --- КЛІЄНТСЬКА АВТОРИЗАЦІЯ ТА ПРОФІЛЬ ---
 Route::get('/client/login', [YachtController::class, 'showLoginForm'])->name('client.login.form');

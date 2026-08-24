@@ -11,8 +11,22 @@ class TypeYacht extends Model
     // Вказуємо, що primary key — це id_type
     protected $primaryKey = 'id_type';
     
-    // Дозволяємо масове заповнення
-    protected $fillable = ['name_type', 'max_passengers', 'length', 'width', 'cabins', 'heads', 'engine_power', 'engine_model', 'year', 'condition', 'image_path'];
+    // Дозволяємо масове заповнення (додали описи!)
+    protected $fillable = [
+        'name_type', 
+        'short_description', 
+        'full_description', 
+        'max_passengers', 
+        'length', 
+        'width', 
+        'cabins', 
+        'heads', 
+        'engine_power', 
+        'engine_model', 
+        'year', 
+        'condition', 
+        'image_path'
+    ];
 
     // Зв'язок: один тип має багато фото
     public function photos()

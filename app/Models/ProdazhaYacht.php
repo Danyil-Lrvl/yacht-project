@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProdazhaYacht extends Model
 {
-    // Вказуємо назву таблиці, якщо вона не відповідає стандартному множинному числу (за бажанням)
+    // Вказуємо назву таблиці
     protected $table = 'prodazha_yachts';
 
     // Дозволяємо масове заповнення полів
     protected $fillable = [
         'yacht_id', 
         'client_id', 
-        'sale_date', // <--- Згідно зі структурою таблиці prodazha_yachts
+        'sale_date', 
         'amount', 
         'status'
     ];
@@ -27,6 +27,6 @@ class ProdazhaYacht extends Model
     // Зв'язок: Продаж здійснюється конкретному клієнту
     public function client()
     {
-        return $this->belongsTo(ClientYacht::class);
+        return $this->belongsTo(ClientYacht::class, 'client_id');
     }
 }
