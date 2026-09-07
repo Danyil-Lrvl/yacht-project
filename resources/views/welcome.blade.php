@@ -92,7 +92,15 @@
             <!-- Шапка сторінки з заголовком та фільтром за типом яхти -->
             <div class="flex justify-between items-center mb-10 max-w-5xl mx-auto px-4">
                 <h1 class="text-4xl font-bold text-white text-center capitalize">
-                    {{ isset($type) ? $type->name_type : (isset($typeName) ? $typeName : 'Яхти') }}
+                    @if(($typeName ?? '') === 'rent')
+                        Оренда
+                    @elseif(($typeName ?? '') === 'buy')
+                        Купівля
+                    @elseif(isset($type))
+                        {{ $type->name_type }}
+                    @else
+                        Яхти
+                    @endif
                 </h1>
                 
                 <!-- Випадаючий список фільтрації за типом -->

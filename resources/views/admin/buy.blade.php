@@ -1,10 +1,10 @@
 @extends('admin.layout')
 
-@section('title', 'Керування купівлею | Адмін-панель')
+@section('title', 'Керування продажем | Адмін-панель')
 
 @section('content')
 <div class="bg-[#1a6668] p-8 rounded-3xl border border-[#2b8a8c] mb-10">
-    <h2 class="text-2xl font-bold mb-6 text-cyan-300">Керування замовленнями (Купівля)</h2>
+    <h2 class="text-2xl font-bold mb-6 text-cyan-300">Керування замовленнями (Продаж)</h2>
     
     <!-- Фільтри -->
     <form method="GET" action="{{ route('admin.buy') }}" class="flex gap-4 mb-6 items-center flex-wrap">

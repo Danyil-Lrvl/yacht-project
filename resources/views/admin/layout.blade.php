@@ -54,7 +54,7 @@
         <div style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
             <a href="{{ route('admin.rent') }}" style="padding: 10px 20px; border-radius: 8px; text-decoration: none; background: {{ request()->routeIs('admin.rent') ? '#4ce0d2' : '#1d5f64' }}; color: {{ request()->routeIs('admin.rent') ? '#0b3c40' : '#fff' }}; font-weight: bold;">Оренда</a>
             
-            <a href="{{ route('admin.buy') }}" style="padding: 10px 20px; border-radius: 8px; text-decoration: none; background: {{ request()->routeIs('admin.buy') ? '#4ce0d2' : '#1d5f64' }}; color: {{ request()->routeIs('admin.buy') ? '#0b3c40' : '#fff' }}; font-weight: bold;">Купівля</a>
+            <a href="{{ route('admin.buy') }}" style="padding: 10px 20px; border-radius: 8px; text-decoration: none; background: {{ request()->routeIs('admin.buy') ? '#4ce0d2' : '#1d5f64' }}; color: {{ request()->routeIs('admin.buy') ? '#0b3c40' : '#fff' }}; font-weight: bold;">Продаж</a>
             
             <a href="{{ route('admin.types') }}" style="padding: 10px 20px; border-radius: 8px; text-decoration: none; background: {{ request()->routeIs('admin.types') ? '#4ce0d2' : '#1d5f64' }}; color: {{ request()->routeIs('admin.types') ? '#0b3c40' : '#fff' }}; font-weight: bold;">Типи</a>
             
