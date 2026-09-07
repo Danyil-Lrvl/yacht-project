@@ -9,7 +9,7 @@ class Yacht extends Model
     protected $table = 'yachts';
     protected $primaryKey = 'id';
     
-    // Вказуємо правильні назви колонок, які є у вашій базі даних
+    // Додано 'client_id', щоб працювало масове заповнення для власника
     protected $fillable = [
         'name', 
         'status', 
@@ -22,29 +22,33 @@ class Yacht extends Model
         'last_maintenance', 
         'registration_date', 
         'is_active', 
-        'comment'
+        'comment',
+        'client_id' 
     ];
 
     protected $attributes = [
         'status' => 'available',
     ];
 
-    // Зв'язок тепер точно відповідає колонці type_id у таблиці yachts
+    // Зв'язок з типом яхти
     public function type()
     {
         return $this->belongsTo(TypeYacht::class, 'type_id', 'id_type');
     }
 
+    // Зв'язок з орендами
     public function rents()
     {
         return $this->hasMany(RentYacht::class, 'yacht_id');
     }
 
+    // Зв'язок з продажами (через окрему таблицю prodazha_yachts)
     public function sales()
     {
         return $this->hasMany(ProdazhaYacht::class, 'yacht_id');
     }
 
+    // Зв'язок з власником (клієнтом)
     public function owner()
     {
         return $this->belongsTo(ClientYacht::class, 'client_id');

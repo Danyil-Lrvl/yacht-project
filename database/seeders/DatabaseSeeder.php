@@ -16,15 +16,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Запуск наших основних сідерів із даними бекапу в правильному порядку
+        $this->call([
+            ClientYachtSeeder::class,
+            TypeYachtSeeder::class,
+            YachtSeeder::class,
+            YachtPhotoSeeder::class,
+            RentBuySeeder::class,
+        ]);
 
+        // 2. Тестовий користувач для автентифікації
         User::firstOrCreate(
             ['email' => 'test@example.com'],
             ['name' => 'Test User', 'password' => bcrypt('password')]
         );
 
-        // Оновлення унікальних "плюшок" (описів) українською для кожної яхти
-
+        // 3. Оновлення унікальних описів українською для кожної яхти
+        
         // Яхти для оренди
         DB::table('yachts')->where('id', 1)->update([
             'comment' => 'Кондиціонер, Супутниковий зв\'язок, Круїзний лайнер'

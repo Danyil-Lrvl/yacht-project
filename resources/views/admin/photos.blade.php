@@ -14,18 +14,41 @@
                 <select name="type_id" required class="w-full p-3 rounded-xl bg-[#1a6668] border border-[#2b8a8c] text-white">
                     <option value="">-- Оберіть тип яхти --</option>
                     @foreach($types ?? [] as $t)
-                        <option value="{{ $t->id_type ?? $t->id }}">
+                        <option value="{{ $t->id_type ?? $t->id }}" {{ old('type_id') == ($t->id_type ?? $t->id) ? 'selected' : '' }}>
                             {{ $t->name_type ?? $t->name }}
                         </option>
                     @endforeach
                 </select>
+                @error('type_id')
+                    <span class="text-rose-400 text-xs mt-1 block">{{ $message }}</span>
+                @enderror
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block mb-2 text-sm">Фото 1:</label><input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white"></div>
-                <div><label class="block mb-2 text-sm">Фото 2:</label><input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white"></div>
-                <div><label class="block mb-2 text-sm">Фото 3:</label><input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white"></div>
-                <div><label class="block mb-2 text-sm">Фото 4:</label><input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white"></div>
+                <div>
+                    <label class="block mb-2 text-sm">Фото 1:</label>
+                    <input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm">Фото 2:</label>
+                    <input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm">Фото 3:</label>
+                    <input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm">Фото 4:</label>
+                    <input type="file" name="photos[]" class="w-full p-2 bg-[#1a6668] border border-[#2b8a8c] rounded-xl text-white">
+                </div>
             </div>
+
+            @error('photos')
+                <span class="text-rose-400 text-xs mt-2 block">{{ $message }}</span>
+            @enderror
+            @error('photos.*')
+                <span class="text-rose-400 text-xs mt-2 block">{{ $message }}</span>
+            @enderror
         </div>
         <button type="submit" class="w-full py-4 bg-cyan-400 text-[#0f3d3e] font-bold rounded-full hover:bg-cyan-300 transition text-lg">Зберегти фотографії</button>
     </form>
@@ -67,7 +90,7 @@
         @forelse($photos ?? [] as $photo)
         <div class="p-4 bg-[#0f3d3e] rounded-2xl border border-[#2b8a8c] flex flex-col justify-between">
             <div>
-                <!-- Виправлено шлях до зображення на такий самий, як на публічній сторінці -->
+                <!-- Змінено шлях із storage/ на images/ відповідно до папки public/images -->
                 <img src="{{ asset('images/' . $photo->image_path) }}" alt="Фото яхти" class="w-full h-40 object-cover rounded-xl mb-3 border border-[#2b8a8c]">
                 <p class="text-xs text-cyan-300 mb-3 text-center truncate" title="{{ basename($photo->image_path) }}">
                     Файл: <span class="font-bold text-white">{{ basename($photo->image_path) }}</span>
@@ -76,7 +99,7 @@
 
             <!-- Форма заміни та видалення фото -->
             <div class="space-y-2">
-                <form action="{{ route('admin.photos.update', $photo->id ?? $photo->id_photo) }}" method="POST" enctype="multipart/form-data" class="flex gap-2">
+                <form action="{{ route('admin.photos.update', $photo->id ?? $photo->id_photo) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-1">
                     @csrf
                     @method('PUT')
                     <input type="file" name="image" required class="hidden" id="photo-input-{{ $photo->id ?? $photo->id_photo }}" onchange="this.form.submit()">

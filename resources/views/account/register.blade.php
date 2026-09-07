@@ -35,7 +35,7 @@
 
             <div class="mb-4">
                 <label class="block text-sm text-cyan-200 mb-1">ПІБ (Прізвище, Ім'я, По батькові)</label>
-                <input type="text" name="name" placeholder="Шевченко Тарас Григорович" required class="w-full bg-[#0f3d3e] text-white px-4 py-2.5 rounded-xl border border-[#2b8a8c] focus:outline-none focus:border-cyan-400">
+                <input type="text" name="name" required class="w-full bg-[#0f3d3e] text-white px-4 py-2.5 rounded-xl border border-[#2b8a8c] focus:outline-none focus:border-cyan-400">
             </div>
             
             <div class="mb-4">
